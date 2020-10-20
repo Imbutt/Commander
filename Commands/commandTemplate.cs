@@ -1,25 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CommanderLibr;
 
 namespace CommanderLibr.Commands
 {
-    class getpixel : Command
+    class commandTemplate : Command
     {
-        public string commString { get; set; }
-        public getpixel()
+        public string commName { get; set; }
+        public commandTemplate()
         {
-            commString = this.GetType().Name;
-        }
-
-        public void Called(string[] args)
-        {
-
+            commName = this.GetType().Name;
         }
 
 
+        public void Call(Commander cmd)
+        {
 
+        }
+        public void Call(Commander cmd, string[] args)
+        {
 
+        }
 
     }
 }
