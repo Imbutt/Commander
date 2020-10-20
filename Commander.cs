@@ -58,7 +58,7 @@ namespace CommanderLibr
             // Initialize every subclass of Command and add it to the commands list
             foreach(var b in bruh)
             {
-                dynamic instance = Activator.CreateInstance(b, new object[] {});
+                dynamic instance = Activator.CreateInstance(b, this);
                 commandDict.Add(instance.GetType().Name, instance);
             }
         }
@@ -96,10 +96,10 @@ namespace CommanderLibr
                             .ToArray();
 
                         // Call the command with the arguments
-                        command.Call(this,args);
+                        command.Call(args);
                     }
                     else
-                        command.Call(this); // Call the command
+                        command.Call(); // Call the command
                 }
                 else
                     ConWrite("Command does not exist");

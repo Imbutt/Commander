@@ -1,9 +1,0 @@
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\bin\Debug\netcoreapp3.1\CommanderLibr.deps.json
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\bin\Debug\netcoreapp3.1\CommanderLibr.dll
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\bin\Debug\netcoreapp3.1\CommanderLibr.pdb
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\obj\Debug\netcoreapp3.1\CommanderLibr.csprojAssemblyReference.cache
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\obj\Debug\netcoreapp3.1\CommanderLibr.csproj.CoreCompileInputs.cache
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\obj\Debug\netcoreapp3.1\CommanderLibr.AssemblyInfoInputs.cache
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\obj\Debug\netcoreapp3.1\CommanderLibr.AssemblyInfo.cs
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\obj\Debug\netcoreapp3.1\CommanderLibr.dll
-C:\Users\Andrea\source\repos\ImmagiBoop\Commander\obj\Debug\netcoreapp3.1\CommanderLibr.pdb

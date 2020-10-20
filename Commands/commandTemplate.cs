@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using CommanderLibr;
@@ -12,25 +13,24 @@ namespace CommanderLibr.Commands
     /// </summary>
     class commandTemplate : Command
     {
-        public commandTemplate()
+        public commandTemplate(Commander cmd) : base(cmd)
         {
             SetCommName(this.GetType().Name);
             string[] existingArgs = new List<string>() 
             {
                 // List of arguments
-                
 
             }.ToArray();
             SetExistingArgs(existingArgs);
         }
 
         
-        public void Call(Commander cmd)
+        public void Call()
         {
             // do stuff    
         }
 
-        public void Call(Commander cmd, string[] args)
+        public void Call(string[] args)
         {
             if(IsArgumentArrayCorrect(args))
             {
