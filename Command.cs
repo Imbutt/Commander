@@ -1,25 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace CommanderLibr
 {
     public class Command : Attribute
     {
+        public string[] ExistingArgs { get; private set; }
+        public string CommName { get; private set; }
 
-        public Command() { }
-
-        public void Call(Commander cmd)
+        public void SetCommName(string _CommName)
         {
-            cmd.ConWriteLine("defualt command");
+            CommName = _CommName;
         }
-        public void Call(Commander cmd,string[] args)
+
+        public void SetExistingArgs(string[] existingArgs)
         {
-            cmd.ConWriteLine("default command");
-            foreach(var b in args)
+            ExistingArgs = existingArgs;
+        }
+
+        public bool IsArgumentArrayCorrect(string[] args)
+        {
+            foreach (string arg in args)
             {
-                cmd.ConWriteLine(b);
+                if (!ExistingArgs.Contains(arg))
+                    return true;
             }
+            return false;
         }
     }
 }

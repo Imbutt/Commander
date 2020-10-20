@@ -18,6 +18,7 @@ namespace CommanderLibr.Commands
         {
             cmd.ConWriteLine("ee");
         }
+        
         public void Call(Commander cmd, string[] args)
         {
             foreach(var b in args)

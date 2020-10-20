@@ -16,6 +16,7 @@ namespace CommanderLibr
         Dictionary<string, object> commandDict = new Dictionary<string, object>(); // Loaded commands
         public ConsoleType cType { get;}
         string writeStart = "#";
+        public static string argFilePath = Directory.GetCurrentDirectory() + @"\Commands.txt";
 
         public enum ConsoleType
         {
@@ -46,7 +47,10 @@ namespace CommanderLibr
             // Set the console type
             cType = _cType;
 
-            /// Load commands
+            // Check for the command arguments file
+            if(!File.Exists(argFilePath))
+                File.Create(argFilePath);
+
             // Get all the subclasses of Command
             Command cmd = new Command();
             IEnumerable<Type> bruh = GetDerivedTypesFor(cmd.GetType());
@@ -85,26 +89,20 @@ namespace CommanderLibr
                     {
                         // Get all arguments
                         int firstWhiteSpace = fullCommString.IndexOf(' ', 0);
-
-                        Console.WriteLine("comm " + commString);
                         string[] args = fullCommString
                             .Substring(firstWhiteSpace, fullCommString.Length - commString.Length)
                             .Split(' ')
                             .Where(x => !x.Equals(String.Empty))
                             .ToArray();
 
-                        //dynamic instance = Activator.CreateInstance(type, "connection_string_param");
+                        // Call the command with the arguments
                         command.Call(this,args);
-
-
                     }
                     else
-                        command.Call(this);
+                        command.Call(this); // Call the command
                 }
                 else
                     ConWrite("Command does not exist");
-
-                
             }
         }
 
