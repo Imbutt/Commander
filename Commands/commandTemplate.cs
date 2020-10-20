@@ -4,10 +4,10 @@ using System.Text;
 
 namespace CommanderLibr.Commands
 {
-    class commandTemplate : Command
+    class getpixel : Command
     {
         public string commString { get; set; }
-        public commandTemplate()
+        public getpixel()
         {
             commString = this.GetType().Name;
         }
