@@ -12,7 +12,7 @@ namespace CommanderLibr.Commands
             commString = this.GetType().Name;
         }
 
-        public void Called()
+        public void Called(string[] args)
         {
 
         }

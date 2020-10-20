@@ -40,9 +40,6 @@ namespace CommanderLibr
                 //var p = Activator.CreateInstance(b) as t;
                 dynamic instance = Activator.CreateInstance(b, new object[] {});
                 commands.Add(instance);
-                Console.WriteLine(b);
-                Console.WriteLine(b.FullName);
-                Console.WriteLine(b.Assembly);
 
             }
 
@@ -51,6 +48,7 @@ namespace CommanderLibr
                 Console.WriteLine(comm);
                 //Console.WriteLine(comm.commString);
             }
+            //jjk
 
         }
 
