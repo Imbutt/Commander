@@ -2,3 +2,4 @@ Commands/*
 !Commands/commandTemplate.cs
 bin/
 obj/
+help.txt

@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using CommanderLibr.Commands;
+using System.Net;
+using System.Diagnostics;
 
 namespace CommanderLibr
 {
@@ -16,12 +18,26 @@ namespace CommanderLibr
         Dictionary<string, object> commandDict = new Dictionary<string, object>(); // Loaded commands
         public ConsoleType cType { get;}
         string writeStart = "#";
-        public static string argFilePath = Directory.GetCurrentDirectory() + @"\Commands.txt";
+        public string HelpFilePath 
+        { 
+            get => Directory.GetCurrentDirectory() + @"\help.txt";
+        }
+        public string TempHelpFilePath
+        {
+            get => Directory.GetCurrentDirectory() + @"\tempHelp.txt";
+        }
 
         public enum ConsoleType
         {
             CMD,
             OUTSIDE
+        }
+
+        public enum MessType
+        {
+            DEBUG,
+            ERROR,
+            WARNING
         }
 
 
@@ -47,19 +63,73 @@ namespace CommanderLibr
             // Set the console type
             cType = _cType;
 
-            // Check for the command arguments file
-            if(!File.Exists(argFilePath))
-                File.Create(argFilePath);
-
             // Get all the subclasses of Command
             Command cmd = new Command();
             IEnumerable<Type> bruh = GetDerivedTypesFor(cmd.GetType());
 
             // Initialize every subclass of Command and add it to the commands list
-            foreach(var b in bruh)
+            foreach (var b in bruh)
             {
                 dynamic instance = Activator.CreateInstance(b, this);
                 commandDict.Add(instance.GetType().Name, instance);
+            }
+
+#if (DEBUG)
+            // If the solution config is set to DEBUG run this code
+            ConWriteLine("DEBUG mode is active",MessType.DEBUG);
+
+            // Get the help.txt from the repos to the bin folder
+            string reposHelpFilePath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName
+                + "/Commander/help.txt";
+            if (File.Exists(reposHelpFilePath))
+            {
+                if (File.Exists(HelpFilePath))
+                {
+                    // If the help.txt inside the bin is different from the repos one substitute it
+                    bool areEqual = File.ReadLines(reposHelpFilePath).SequenceEqual(
+                        File.ReadLines(HelpFilePath));
+                    if (!areEqual)
+                    {
+                        File.Delete(HelpFilePath);
+                        File.Copy(reposHelpFilePath, HelpFilePath);
+                        ConWriteLine("Replaced the bin help.txt with the updated repos one", MessType.DEBUG);
+                        ConWriteLine($"{reposHelpFilePath} to {HelpFilePath}", MessType.DEBUG);
+                    }
+                }
+                else
+                {
+                    File.Copy(reposHelpFilePath, HelpFilePath);
+                    ConWriteLine("Copied the repos help.txt inside the bin folder", MessType.DEBUG);
+                }
+            }
+            else
+            {
+                if (!File.Exists(HelpFilePath))
+                {
+                    ConWriteLine("Could not find the repos help.txt neither the bin one, Creating an error help.txt file", MessType.ERROR);
+                    using (StreamWriter sw = File.CreateText(HelpFilePath))
+                    {
+                        sw.WriteLine("This help.txt file has been automatically generated because it was not found" +
+                            "when the program was started");
+                    }
+                }
+                else
+                {
+                    ConWriteLine("Repos help.txt file not found, maybe it got accidentally deleted? Creating empty one",MessType.WARNING);
+                    File.Create(reposHelpFilePath);
+                }
+            }
+#endif
+
+            // If help.txt isn't found create an error help.txt
+            if (!File.Exists(HelpFilePath))
+            {
+                ConWriteLine("help.txt not found, Creating error help.txt file", MessType.ERROR);
+                using (StreamWriter sw = File.CreateText(HelpFilePath))
+                {
+                    sw.WriteLine("This help.txt file has been automatically generated because it was not found" +
+                        "when the program was started");
+                }
             }
         }
 
@@ -105,11 +175,35 @@ namespace CommanderLibr
                     ConWrite("Command does not exist");
             }
         }
+        
+        /// <summary>
+        /// Creates a template help.txt file getting all the commands and their arguments 
+        /// </summary>
+        /// <param name="path"> Path to output the file, could also be another name like tempHelp.txt </param>
+        public void CreateHelpFile(string path)
+        {
+            if(commandDict.Count != 0)
+            {
+                List<object> commands = commandDict.Values.ToList();
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                    foreach (dynamic comm in commands)
+                    {
+                        sw.WriteLine($"{comm.Name}:");
+                        sw.WriteLine("\t" + $"args:");
+                        foreach(string arg in comm.ExistingArgs)
+                        {
+                            sw.WriteLine("\t\t" + $"-{arg}:");
+                        }
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Equivalent of Console.Write but with outside console in mind
         /// </summary>
-        /// <param name="_string"></param>
+        /// <param name="_string"> String to write to console </param>
         public void ConWrite(string _string)
         {
             if (cType == ConsoleType.CMD)
@@ -121,7 +215,7 @@ namespace CommanderLibr
         /// <summary>
         /// Equivalent of Console.WriteLine but with outside console in mind
         /// </summary>
-        /// <param name="_string"></param>
+        /// <param name="_string"> String to write to console with endline </param>
         public void ConWriteLine(string _string)
         {
             if (cType == ConsoleType.CMD)
@@ -131,27 +225,102 @@ namespace CommanderLibr
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="_string"> String to write to console </param>
+        /// <param name="mt"> Type colored message before the string </param>
+        public void ConWriteLine(string _string, MessType mt)
+        {
+            if (cType == ConsoleType.CMD)
+            {
+                ConsoleColor cmdColor;
+                string messString;
+
+                // Get the first thing and its color
+                switch(mt)
+                {
+                    case MessType.DEBUG:
+                        cmdColor = ConsoleColor.Cyan;
+                        messString = "DEBUG: ";
+                        break;
+                    case MessType.ERROR:
+                        cmdColor = ConsoleColor.Red;
+                        messString = "ERROR: ";
+                        break;
+                    case MessType.WARNING:
+                        cmdColor = ConsoleColor.DarkYellow;
+                        messString = "WARNING: ";
+                        break;
+                    default:
+                        // This should not happen
+                        cmdColor = ConsoleColor.White;
+                        messString = "WHAT: ";
+                        break;
+                }
+                
+                // Type it
+                Console.ForegroundColor = cmdColor;
+                Console.Write(messString);
+                Console.ResetColor();   // RESET THE COLOR
+
+                Console.WriteLine(_string);
+            }
+
+            else
+                throw new NotImplementedException(); // TODO: OUTSIDE CONSOLE
+        }
+
+        /// <summary>
         ///  Equivalent of Console.ReadLine but with outside console in mind
         /// </summary>
-        /// <returns></returns>
+        /// <returns> Returns the equivalent string of Console.ReadLine </returns>
         public string ConRead()
         {
             // Don't accept the string if it's empty
             string _string = String.Empty;
+
+
             do
             {
-                ConWrite(writeStart + " "); // Character that shows the console is taking input
-
                 if (cType == ConsoleType.CMD)
+                {
+                    
+                    ConWrite(writeStart + " "); // Character that shows the console is taking input
                     _string = Console.ReadLine();
+                }
                 else
                     throw new NotImplementedException(); // TODO: OUTSIDE CONSOLE
 
             } while (string.IsNullOrWhiteSpace(_string));
 
             return _string;
-
         }
+
+        public string ConReadCheckInput(string[] acceptedInputs)
+        {
+            string input;
+            do
+            {
+                input = ConRead();
+            }
+            while (!acceptedInputs.Contains(input));
+
+            return input;
+        }
+
+        public bool ConReadBool()
+        {
+            string[] positiveInputs = new string[] { "y", "yes", "1"};
+            string[] negativeInputs = new string[] { "n", "no", "0" };
+            string[] acceptedInputs = positiveInputs.Concat(negativeInputs).ToArray();
+
+            string input = ConReadCheckInput(acceptedInputs);
+            if (input.Equals(positiveInputs))
+                return true;
+            else
+                return false;
+        }
+
 
     }
 }

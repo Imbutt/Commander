@@ -11,7 +11,7 @@ namespace CommanderLibr
     public class Command : Attribute
     {
         public string[] ExistingArgs { get; private set; }
-        public string CommName { get; private set; }
+        public string Name { get; private set; }
         public Commander Cmd { get; set; }
 
         public Command() {  }
@@ -20,9 +20,9 @@ namespace CommanderLibr
             Cmd = cmd;
         }
 
-        public void SetCommName(string _CommName)
+        public void SetCommName(string commName)
         {
-            CommName = _CommName;
+            Name = commName;
         }
 
         public void SetExistingArgs(string[] existingArgs)
@@ -37,7 +37,7 @@ namespace CommanderLibr
                 if (!ExistingArgs.Contains(arg))
                 {
                     Cmd.ConWriteLine($"Argument ({arg}) does not exist in the command, " +
-                        $"type {CommName} --help for more info");
+                        $"type {Name} --help for more info");
                     return false;
                 }
             }
