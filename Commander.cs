@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using CommanderLibr.Commands;
 using System.Net;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace CommanderLibr
 {
@@ -75,6 +76,7 @@ namespace CommanderLibr
             }
 
 #if (DEBUG)
+
             // If the solution config is set to DEBUG run this code
             ConWriteLine("DEBUG mode is active",MessType.DEBUG);
 
@@ -131,6 +133,13 @@ namespace CommanderLibr
                         "when the program was started");
                 }
             }
+            else
+            {
+                // Check if all commands and arguments are inside the help.txt file
+
+            }
+
+
         }
 
         public void Start()
@@ -199,6 +208,23 @@ namespace CommanderLibr
                 }
             }
         }
+
+
+        public void CheckHelpFile(string path)
+        {
+            // TODO: Finish function
+            if (commandDict.Count != 0)
+            {
+                List<object> commands = commandDict.Values.ToList();
+                string text = File.ReadAllText(path);
+                foreach (dynamic comm in commands)
+                {
+                    Regex r = new Regex($"{comm.Name}:");
+                    var b = r.Match(text).Index;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Equivalent of Console.Write but with outside console in mind

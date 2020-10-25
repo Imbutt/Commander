@@ -16,11 +16,12 @@ namespace CommanderLibr.Commands
         public commandTemplate(Commander cmd) : base(cmd)
         {
             SetCommName(this.GetType().Name);
-            string[] existingArgs = new List<string>() 
+            string[] existingArgs = new string[]
             {
                 // List of arguments
 
-            }.ToArray();
+            };
+
             SetExistingArgs(existingArgs);
         }
 

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CommanderLibr
 {
-    public class Command : Attribute
+    public class Command
     {
         public string[] ExistingArgs { get; private set; }
         public string Name { get; private set; }
