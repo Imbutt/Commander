@@ -30,6 +30,8 @@ namespace CommanderLibr
             ExistingArgs = existingArgs;
         }
 
+        // Not used as it is now working as intented, ex: if the user wants to input a path for a file 
+        // the command is not run as it does not recognize it as an argument
         public bool IsArgumentArrayCorrect(string[] args)
         {
             foreach (string arg in args)

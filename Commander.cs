@@ -17,6 +17,7 @@ namespace CommanderLibr
     {
 
         Dictionary<string, object> commandDict = new Dictionary<string, object>(); // Loaded commands
+        List<object> linkedObjects = new List<object>();        // Linked objects to mess with the program
         public ConsoleType cType { get;}
         string writeStart = "#";
         public string HelpFilePath 
