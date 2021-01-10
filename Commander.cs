@@ -10,6 +10,7 @@ using CommanderLibr.Commands;
 using System.Net;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Esercizer.CommanderLibr;
 
 namespace CommanderLibr
 {
@@ -17,11 +18,11 @@ namespace CommanderLibr
     {
 
         Dictionary<string, object> commandDict = new Dictionary<string, object>(); // Loaded commands
-        List<object> linkedObjects = new List<object>();        // Linked objects to mess with the program
-        public ConsoleType cType { get;}
+        public List<object> linkedObjects = new List<object>();        // Linked objects to mess with the program
+        public ConsoleType cType { get; }
         string writeStart = "#";
-        public string HelpFilePath 
-        { 
+        public string HelpFilePath
+        {
             get => Directory.GetCurrentDirectory() + @"\help.txt";
         }
         public string TempHelpFilePath
@@ -42,7 +43,6 @@ namespace CommanderLibr
             WARNING
         }
 
-
         /// <summary>
         /// Used to initialize all sub command classes
         /// </summary>
@@ -62,6 +62,8 @@ namespace CommanderLibr
         /// </summary>
         public Commander(ConsoleType _cType)
         {
+            Console.WriteLine(HelpFilePath);
+
             // Set the console type
             cType = _cType;
 
@@ -72,14 +74,21 @@ namespace CommanderLibr
             // Initialize every subclass of Command and add it to the commands list
             foreach (var b in bruh)
             {
-                dynamic instance = Activator.CreateInstance(b, this);
+                object instance = Activator.CreateInstance(b, this);
                 commandDict.Add(instance.GetType().Name, instance);
             }
+
+
+
+        }
+
+        public void CreateCheckHelpFile()
+        {
 
 #if (DEBUG)
 
             // If the solution config is set to DEBUG run this code
-            ConWriteLine("DEBUG mode is active",MessType.DEBUG);
+            ConWriteLine("DEBUG mode is active", MessType.DEBUG);
 
             // Get the help.txt from the repos to the bin folder
             string reposHelpFilePath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName
@@ -91,6 +100,7 @@ namespace CommanderLibr
                     // If the help.txt inside the bin is different from the repos one substitute it
                     bool areEqual = File.ReadLines(reposHelpFilePath).SequenceEqual(
                         File.ReadLines(HelpFilePath));
+
                     if (!areEqual)
                     {
                         File.Delete(HelpFilePath);
@@ -110,7 +120,8 @@ namespace CommanderLibr
                 if (!File.Exists(HelpFilePath))
                 {
                     ConWriteLine("Could not find the repos help.txt neither the bin one, Creating an error help.txt file", MessType.ERROR);
-                    using (StreamWriter sw = File.CreateText(HelpFilePath))
+                    var f = File.Create(HelpFilePath);
+                    using (StreamWriter sw = new StreamWriter(f))
                     {
                         sw.WriteLine("This help.txt file has been automatically generated because it was not found" +
                             "when the program was started");
@@ -118,7 +129,7 @@ namespace CommanderLibr
                 }
                 else
                 {
-                    ConWriteLine("Repos help.txt file not found, maybe it got accidentally deleted? Creating empty one",MessType.WARNING);
+                    ConWriteLine("Repos help.txt file not found, maybe it got accidentally deleted? Creating empty one", MessType.WARNING);
                     File.Create(reposHelpFilePath);
                 }
             }
@@ -139,15 +150,22 @@ namespace CommanderLibr
                 // Check if all commands and arguments are inside the help.txt file
 
             }
+        }
 
-
+        /// <summary>
+        /// Used to link an object to manipulate using the commands
+        /// </summary>
+        /// <param name="obj"></param>
+        public void AddLinkedObject(object obj)
+        {
+            linkedObjects.Add(obj);
         }
 
         public void Start()
         {
             bool loop = true;
 
-            while(loop)
+            while (loop)
             {
 
                 // Get command
@@ -162,7 +180,7 @@ namespace CommanderLibr
                     commString = fullCommString;
 
                 // Find command in commandDict
-                var commFound = commandDict.TryGetValue(commString,out dynamic command);
+                var commFound = commandDict.TryGetValue(commString, out dynamic command);
                 if (commFound != false)
                 {
                     if (fullCommString.Contains(' '))
@@ -179,20 +197,20 @@ namespace CommanderLibr
                         command.Call(args);
                     }
                     else
-                        command.Call(); // Call the command
+                        command.Call(); // Call the command with no arguments
                 }
                 else
-                    ConWrite("Command does not exist");
+                    ConWriteLine("Command does not exist");
             }
         }
-        
+
         /// <summary>
         /// Creates a template help.txt file getting all the commands and their arguments 
         /// </summary>
         /// <param name="path"> Path to output the file, could also be another name like tempHelp.txt </param>
         public void CreateHelpFile(string path)
         {
-            if(commandDict.Count != 0)
+            if (commandDict.Count != 0)
             {
                 List<object> commands = commandDict.Values.ToList();
                 using (StreamWriter sw = File.CreateText(path))
@@ -201,7 +219,7 @@ namespace CommanderLibr
                     {
                         sw.WriteLine($"{comm.Name}:");
                         sw.WriteLine("\t" + $"args:");
-                        foreach(string arg in comm.ExistingArgs)
+                        foreach (string arg in comm.ExistingArgs)
                         {
                             sw.WriteLine("\t\t" + $"-{arg}:");
                         }
@@ -264,7 +282,7 @@ namespace CommanderLibr
                 string messString;
 
                 // Get the first thing and its color
-                switch(mt)
+                switch (mt)
                 {
                     case MessType.DEBUG:
                         cmdColor = ConsoleColor.Cyan;
@@ -284,7 +302,7 @@ namespace CommanderLibr
                         messString = "WHAT: ";
                         break;
                 }
-                
+
                 // Type it
                 Console.ForegroundColor = cmdColor;
                 Console.Write(messString);
@@ -311,7 +329,7 @@ namespace CommanderLibr
             {
                 if (cType == ConsoleType.CMD)
                 {
-                    
+
                     ConWrite(writeStart + " "); // Character that shows the console is taking input
                     _string = Console.ReadLine();
                 }
@@ -337,7 +355,7 @@ namespace CommanderLibr
 
         public bool ConReadBool()
         {
-            string[] positiveInputs = new string[] { "y", "yes", "1"};
+            string[] positiveInputs = new string[] { "y", "yes", "1" };
             string[] negativeInputs = new string[] { "n", "no", "0" };
             string[] acceptedInputs = positiveInputs.Concat(negativeInputs).ToArray();
 
@@ -349,5 +367,16 @@ namespace CommanderLibr
         }
 
 
+
+        public T CastObject<T>(object input)
+        {
+            return (T)input;
+        }
+
+        public T ConvertObject<T>(object input)
+        {
+            return (T)Convert.ChangeType(input, typeof(T));
+
+        }
     }
 }
